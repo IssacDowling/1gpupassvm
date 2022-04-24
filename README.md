@@ -57,9 +57,9 @@ Again, CTRL+X, Y, ENTER, to save and exit.
 
 Finally, 
 ```
-sudo systemctl enable libvirtd
+sudo systemctl enable libvirtd --now
 ```
-to enable libvirtd, and reboot. It seems uneccesary, but it's needed for some permissions.
+to enable libvirtd.
 
 ## GPU Bios
 We will be saving a bios anyway to pass through to the VM. Go to the [Techpowerup Bios Repository](https://www.techpowerup.com/vgabios/), and search for your GPU. Download it's bios. You want to find your exact model. E.G: MSI AIR BOOST VEGA 64, as opposed to just "Vega 64". Once you have your rom, rename it to "gpubios.rom", and ensure it's in your Downloads folder. 
@@ -97,7 +97,14 @@ Open Virtual Machine Manager, which should've been installed earlier, click QEMU
 * Click add hardware in the bottom left of the virtual machine manager, and select storage. Set the Bus Type to VirtIO instead of SATA, and pick however much storage you want.
 * Add hardware to your VM again, select storage, and set the device type to CDROM Device. Click "select or create custom storage", then browse to the VirtIO iso. Press finish
 * Click on SATA CDROM 2, and click browse, then browse local, and head to your downloads, where you'll double click the VirtIO drivers iso. Press apply.
+* Add hardware again, and add a TPM, in advanced set it to CRB and V2.0
 * Now, go to the top, and press begin installation.
+* If you see a permissions error, run
+```
+sudo ausearch -c 'qemu-system-x86' --raw | audit2allow -M my-qemusystemx86
+sudo semodule -i my-qemusystemx86.pp
+```
+which will tell SElinux to allow whatever it's blocking.
 * When you see a menu which says press any key to boot from CD, press any key. If you miss the time window, close the VM, right click it and force off, then try again.
 
 **Keep in mind, during first install, graphics and framerate will be pretty bad**
