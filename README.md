@@ -278,7 +278,7 @@ It should now work
 ## If it works, here are some extras.
 
 ### I want to pass through devices in the same IOMMU group (this is the section for people with wonky IOMMU groups from earlier)
-## This is also relevant for people who want to pass through their audio/network devices to the VM
+#### This is also relevant for people who want to pass through their audio/network devices to the VM
 Switch your kernel to Xanmod. Or do some other method to get the ACS patch, but I don't know how.
 For Xanmod, just run
 ```
