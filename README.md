@@ -16,7 +16,7 @@ sudo usermod -aG libvirt $USER
 ## Download what you'll need later
 [VirtIO Drivers](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso)
 
-[Windows ISO](https://www.microsoft.com/en-gb/software-download/windows10/)
+[Windows ISO](https://www.microsoft.com/en-gb/software-download/windows11/)
 ## Change bootloader options
 Run this
 ```
@@ -111,6 +111,7 @@ Open Virtual Machine Manager, which should've been installed earlier, click QEMU
 * Set the Bus Type to VirtIO instead of SATA
 * Add hardware to your VM again, select storage, and set the device type to CDROM Device. Click "select or create custom storage", then browse to the VirtIO iso. Press finish
 * Click on SATA CDROM 2, and click browse, then browse local, and head to your downloads, where you'll double click the VirtIO drivers iso. Press apply.
+* Add hardware, and add a TPM module with the default settings.
 * Now, go to the top, and press begin installation.
 * When you see a menu which says press any key to boot from CD, press any key. If you miss the time window, close the VM, right click it and force off, then try again.
 
