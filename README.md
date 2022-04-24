@@ -24,7 +24,7 @@ sudo nano /etc/default/grub
 ```
 Then add this
 ```
-amd_iommu=on iommu=pt iommu=1
+amd_iommu=on iommu=pt
 ```
 To the line containing "GRUB_CMDLINE_LINUX="
 
