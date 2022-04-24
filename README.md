@@ -1,52 +1,34 @@
-# 1gpupassvm (Arch)
+# 1gpupassvm (Fedora)
 
-## Update things
+## Prerequisites
+* Ensure above 4g decoding and resizeable bar are disabled. Right now, they cause VM issues.
+* Enable your respective virtualisation technology, for AMD, that's CSM in the bios.
+* Be on Fedora. This branch is for Fedora. [Click here for Arch.](https://github.com/IssacDowling/1gpupassvm/tree/arch)
+
+## Update and install things
+Run these in a terminal.
 ```
-sudo pacman -Syu
+sudo dnf upgrade
+sudo dnf -y group install Virtualization
+sudo usermod -aG libvirt $USER
 ```
 
 ## Download what you'll need later
 [VirtIO Drivers](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso)
 
-[Windows ISO](https://www.microsoft.com/en-gb/software-download/windows11/)
+[Windows ISO](https://www.microsoft.com/en-gb/software-download/windows10/)
 ## Change bootloader options
-### If using grub:
+Run this
 ```
 sudo nano /etc/default/grub
 ```
-Then, on the line **GRUB_CMDLINE_LINUX_DEFAULT=**, *inside* the quotation marks, add these if you've got an AMD cpu:
+Then add this
 ```
-iommu=pt amd_iommu=on
+amd_iommu=on iommu=pt iommu=1
 ```
-Of course, on intel it's:
-```
-iommu=pt intel_iommu=on
-```
+To the line containing "GRUB_CMDLINE_LINUX="
 
-CTRL+X, Y, ENTER, to save and exit.
-
-Now, run
-```
-sudo grub-mkconfig -o /boot/grub/grub.cfg
-```
-
-### If using systemd-boot
-```cd /boot/loader/entries/```
-Type "sudo nano", then press TAB, which will select your one entry. If you have multiple, it'll show all of them, select the right one. Then press enter.
-
-Go to the end of the line beginning with **options**, and paste this for AMD:
-```
-iommu=pt amd_iommu=on
-```
-This for intel:
-```
-iommu=pt intel_iommu=on
-```
-CTRL+X, Y, ENTER, to save and exit.
-
-
-### If not using the above:
-Look up changing kernel parameters for your bootloader. It'll be vaguely similar
+CTRL+X, Y, Enter, to save and exit.
 
 #### Now reboot
 
@@ -67,36 +49,8 @@ done;
 
 Note the characters (e.g. 2b:00.0) preceeding your "VGA compatible controller" (gpu), and its corresponding audio device.
 
-## Installing stuff
-First, ensure the multilib repo is enabled.
-Run
-```
-sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
-sudo pacman -Syu
-```
-
-Run this. It downloads necessary packages, and enables services. It will likely ask you for your password multiple times, however this is why it's important that you can see exactly the commands we're running.
-```
-sudo pacman -S virt-manager qemu vde2 ebtables iptables-nft nftables dnsmasq bridge-utils ovmf swtpm wget
-systemctl enable libvirtd.service
-systemctl start libvirtd
-systemctl enable virtlogd.socket
-systemctl start virtlogd.socket
-sudo virsh net-autostart default
-sudo virsh net-start default
-```
-
 ## Editing files
 Run
-```
-sudo nano /etc/libvirt/libvirtd.conf
-```
-Now, CTRL+W, and search unix_sock.
-Remove # from that line, CTRL+W again, unix_sock_rw, remove #.
-
-CTRL+X, Y, ENTER, to save and exit.
-
-Now, run
 ```
 sudo nano /etc/libvirt/qemu.conf
 ```
@@ -106,16 +60,12 @@ Again, CTRL+X, Y, ENTER, to save and exit.
 
 Finally, 
 ```
-sudo usermod -a -G libvirt $(whoami)
-sudo systemctl start libvirtd
-sudo systemctl enable libvirtd
+sudo systemctl enable libvirtd --now
 ```
-to add yourself to groups, and enable libvirtd.
-
-#### Now, reboot
+to enable libvirtd.
 
 ## GPU Bios
-Some GPUs need patched firmware to work for this. In this example, we won't be patching it, since at the time of writing, I have an AMD Vega 64, which doesn't need patching, however we will be saving a bios anyway to pass through to the VM.
+Some GPUs need patched firmware to work for this. In this example, we won't be patching it, since at the time of writing, I have an RX 6600 XT, which doesn't need patching, however we will be saving a bios anyway to pass through to the VM.
 Go to the [Techpowerup Bios Repository](https://www.techpowerup.com/vgabios/), and search for your GPU. Download it's bios. You want to find your exact model. E.G: MSI AIR BOOST VEGA 64, as opposed to just "Vega 64". Once you have your rom, rename it to "gpubios.rom", and ensure it's in your Downloads folder. 
 
 Then, you can just run
@@ -139,7 +89,7 @@ Open Virtual Machine Manager, which should've been installed earlier, click QEMU
 * Forward
 * Untick "Enable Storage For This Machine", we'll handle it later.
 * Forward
-* Set a name. Examples shown will use "Windows". Change "Windows" to whatever you call your VM if you choose something different.
+* Set a name. Examples shown will use "Windows". **Change "Windows" to whatever you call your VM in the later scripts if you choose something different.**
 * Tick customise config before install
 * Finish
 * Click BIOS, and change it to the /x64/OVMF_CODE.secboot option (secboot enables secureboot. If you know you don't want it, you can disable it, but it's necessary for windows 11)
@@ -149,13 +99,11 @@ Open Virtual Machine Manager, which should've been installed earlier, click QEMU
 * Sockets to 1, set cores to -1 from whatever your CPU has, so a 6 core processor would have 5.
 * Go to a terminal and type htop. At the top you'll see a bunch of charts going horizontally at the top, which are numbered. On a Ryzen 3600, they go from 0-11, meaning there are 12 threads, or 2x the core count, meaning it has hyperthreading. If you have double as many bars as cores, set threads on your VM to 2. If it's the same as the physical cores you have, set threads to 1.
 * Untick "Copy host CPU configuration" IF it says (host-passthrough) after it, and select host-model from the dropdown.
-
 * Click add hardware in the bottom left of the virtual machine manager, and select storage, which is normally at the top
 * Set however many GB you want it to have (keep in mind, the virtual disk only takes as much space as the VM is actually using, so don't worry about it immediately eating all your storage space on the Host)
 * Set the Bus Type to VirtIO instead of SATA
 * Add hardware to your VM again, select storage, and set the device type to CDROM Device. Click "select or create custom storage", then browse to the VirtIO iso. Press finish
 * Click on SATA CDROM 2, and click browse, then browse local, and head to your downloads, where you'll double click the VirtIO drivers iso. Press apply.
-* Click add hardware, this time add a TPM with the default settings
 * Now, go to the top, and press begin installation.
 * When you see a menu which says press any key to boot from CD, press any key. If you miss the time window, close the VM, right click it and force off, then try again.
 
@@ -177,12 +125,8 @@ sudo mkdir /etc/libvirt/hooks
 sudo wget 'https://raw.githubusercontent.com/PassthroughPOST/VFIO-Tools/master/libvirt_hooks/qemu' -O /etc/libvirt/hooks/qemu
 sudo chmod +x /etc/libvirt/hooks/qemu
 sudo systemctl restart libvirtd
-sudo mkdir /etc/libvirt/hooks/qemu.d
-sudo mkdir /etc/libvirt/hooks/qemu.d/Windows
-sudo mkdir /etc/libvirt/hooks/qemu.d/Windows/prepare
-sudo mkdir /etc/libvirt/hooks/qemu.d/Windows/release
-sudo mkdir /etc/libvirt/hooks/qemu.d/Windows/prepare/begin
-sudo mkdir /etc/libvirt/hooks/qemu.d/Windows/release/end
+sudo mkdir -p /etc/libvirt/hooks/qemu.d/Windows/prepare/begin
+sudo mkdir -p /etc/libvirt/hooks/qemu.d/Windows/release/end
 ```
 This will download files to do with VM hooks, and make directories, along with restarting libvirtd
 
@@ -207,7 +151,7 @@ echo 0 > /sys/class/vtconsole/vtcon1/bind
 echo "efi-framebuffer.0" > /sys/bus/platform/devices/efi-framebuffer.0/driver/unbind
 
 #Avoid race condition
-sleep 3
+sleep 5
 
 #load vfio
 modprobe vfio
@@ -218,7 +162,7 @@ Copy This into the text editor, and we'll edit to fit your PC.
 
 For the VTconsoles bit, go into another terminal and run ``ls /sys/class/vtconsole/``. For however many vtcons there are, copy the lines that are already in this code, changing the number to match. Most people just have vtcon0 and 1, which is already setup.
 
-The avoid race condition section basically just waits to ensure previous bits of code are excecuted before continuing. For most people, this does not need to be 10, but for some it does. Start at 10, and then once we're done, try lowering it and seeing what works. Personally, I use 0.5
+The avoid race condition section basically just waits to ensure previous bits of code are excecuted before continuing. For most people, this does not need to be 10, but for some it does. Start high, and then once we're done, try lowering it and seeing what works. I use 0.5
 
 If on AMD, you're done, if on nvidia, **add these lines just before Unbind GPU**
 ```
@@ -254,11 +198,7 @@ echo "efi-framebuffer.0" > /sys/bus/platform/drivers/efi-framebuffer/bind
 #Restart Display Service
 systemctl start display-manager.service
 ```
-The first 4 sections should be left alone always. 
-
 For VTconsoles, make the same changes, if any, you made in the start script.
-
-As with the start script, you can later try reducing/removing any sleep commands
 
 On NVIDIA, **add these before "rebind GPU"
 ```
@@ -303,22 +243,21 @@ Open virtual machine manager, and click on your machine. Go to the info icon in 
 * Click on one of the PCIE devices, click xml, and make a line below the line 'source'
 * Paste in this line:
 ```
-  <rom file="/etc/libvirt/gpubios/gpubios.rom"/>
+<rom file="/etc/libvirt/gpubios/gpubios.rom"/>
 ```
 * Copy that line to the other PCIE device too.
 * Now go to overview, and click the XML tab.
 * Look for the line beginning with "Spinlock State"
-* If you're on NVIDIA, remember to patch your bios like I mentioned earlier, there are guides online, and paste this line in:
+* Paste this:
 ````
-<vendor_id state="on" value="spaghetti"/>
+<vendor_id state="on" value="fedoralinux"/>
       <vpindex state="on"/>
       <runtime state="on"/>
       <synic state="on"/>
       <stimer state="on"/>
       <reset state="on"/>
-
 ````
-Then, just below the hyperv line, paste:
+Then, just below the end hyperv line, paste:
 ````
     <kvm>
       <hidden state="on"/>
@@ -327,7 +266,7 @@ Then, just below the hyperv line, paste:
 
 ## Restart your PC, and give your VM a go!
 ## Networking may not work, here's how to fix that.
-Enable ACS patching and pass through your ethernet card. Honestly unsure why it isn't working properly otherwise right now.
+Enable ACS patching and pass through your ethernet card. Honestly unsure why it wouldn't work, but I've experienced it on arch.
 ## If it works, here are some extras.
 ### Performance
 If on ryzen, add this to your CPU section in the XML, something something performance / hyperthreading
