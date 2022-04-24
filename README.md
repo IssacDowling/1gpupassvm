@@ -272,9 +272,46 @@ Then, just below the end hyperv line, paste:
 ````    
 
 ## Restart your PC, and give your VM a go!
-## Networking may not work, here's how to fix that.
-Enable ACS patching and pass through your ethernet card. Honestly unsure why it wouldn't work, but I've experienced it on arch.
+It will likely not work, because of SELinux. 
+
+I am not an expert, these changes have not been verified by me or anybody else not to hurt the security or reliability of your system. These are just the commands I needed to run to ensure SELINUX would allow my VM to work fully.
+```
+sudo ausearch -c 'qemu-system-x86' --raw | audit2allow -M my-qemusystemx86
+sudo semodule -i my-qemusystemx86.pp
+sudo semanage boolean -m --on virt_use_nfs
+sudo semanage boolean -m --on virt_sandbox_use_all_caps
+```
+It should now work
 ## If it works, here are some extras.
+
+### I want to pass through devices in the same IOMMU group (this is the section for people with wonky IOMMU groups from earlier)
+## This is also relevant for people who want to pass through their audio/network devices to the VM
+Switch your kernel to Xanmod. Or do some other method to get the ACS patch, but I don't know how.
+For Xanmod, just run
+```
+sudo dnf copr enable rmnscnce/kernel-xanmod -y
+sudo dnf in kernel-xanmod-edge
+```
+Then reboot, and type
+```
+hostnamectl
+```
+to verify that you're now using Xanmod.
+
+Then, go to your bootloader options, on grub that's 
+```
+sudo nano /etc/default/grub
+```
+Then, on the line **GRUB_CMDLINE_LINUX_DEFAULT=**, *inside* the quotation marks, add:
+```
+pcie_acs_override=downstream,multifunction
+```
+And run:
+```
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+```
+Not only should this fix any GPU-related IOMMU group issues, but it should also allow you to directly passthrough things like your motherboard's NIC, or a PCIE USB card that's not cooperating. Anything PCIE should be free to pass now. Also note: passing a USB controller is MUCH PREFERRED to individually forwarding USB devices. It allows hotplug, and is more compatible
+
 ### Performance
 If on ryzen, add this to your CPU section in the XML, something something performance / hyperthreading
 ````
@@ -301,33 +338,6 @@ Then, replace the line ending in vcpu with:
  ```
  To modify it, first change the number of vcpus to be the equal to 2x the cores we'll be passing through. Keep 2 cores free in this case, instead of just 1 which i'd do if not pinning. Then, use LSTOPO to match groups of cores. So, vcpu 0 I have = to cpuset 4, then vcpu 1 is cpuset 5. This is because one of my physical cores shows as 'owning' 4 and 5. That's the best explanation I can think of. For emulatorpin, change to one other free core, then set iothread to the final free core.
 
-
-### I want to pass through devices in the same IOMMU group (this is the section for people with wonky IOMMU groups from earlier)
-Well, switch your kernel to Xanmod. Or do some other method to get the ACS patch, but I don't know how.
-For Xanmod, just run
-```
-sudo dnf copr enable rmnscnce/kernel-xanmod -y
-sudo dnf in kernel-xanmod-edge
-```
-Then reboot, and type
-```
-hostnamectl
-```
-to verify that you're now using Xanmod.
-
-Then, go to your bootloader options, on grub that's 
-```
-sudo nano /etc/default/grub
-```
-Then, on the line **GRUB_CMDLINE_LINUX_DEFAULT=**, *inside* the quotation marks, add:
-```
-pcie_acs_override=downstream,multifunction
-```
-And run:
-```
-sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-```
-Not only should this fix any GPU-related IOMMU group issues, but it should also allow you to directly passthrough things like your motherboard's NIC, or a PCIE USB card that's not cooperating. Anything PCIE should be free to pass now. Also note: passing a USB controller is MUCH PREFERRED to individually forwarding USB devices. It allows hotplug, and is more compatible
 
 
 ### Anticheat
