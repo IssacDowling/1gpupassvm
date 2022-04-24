@@ -97,7 +97,6 @@ Open Virtual Machine Manager, which should've been installed earlier, click QEMU
 * Click add hardware in the bottom left of the virtual machine manager, and select storage. Set the Bus Type to VirtIO instead of SATA, and pick however much storage you want.
 * Add hardware to your VM again, select storage, and set the device type to CDROM Device. Click "select or create custom storage", then browse to the VirtIO iso. Press finish
 * Click on SATA CDROM 2, and click browse, then browse local, and head to your downloads, where you'll double click the VirtIO drivers iso. Press apply.
-* Add hardware again, and add a TPM, in advanced set it to CRB and V2.0
 * Now, go to the top, and press begin installation.
 * If you see a permissions error, run
 ```
@@ -110,7 +109,8 @@ which will tell SElinux to allow whatever it's blocking.
 **Keep in mind, during first install, graphics and framerate will be pretty bad**
 
 * Go through installation as normal for the first bit.
-* Next, install now, I don't have a product key, any version not ending in N, read and accept, next, custom install.
+* Due to some potential emulated TPM issues, we'll be telling Windows to ignore it. Once you're onto the windows version select screen, press Shift+F10, then type regedit.exe . Now, go to localmachine, system, right click setup, and make a new key called LabConfig.
+* Inside LabConfig, make a new 32bit value called BypassTPMCheck. Double click it, set the value to one, then continue setup as normal by selecting a windows 11 edition.
 * Now, press load drivers, then ok, and select the driver that appears with w11 (or whatever other version of windows you're using) in the name. Click it and press next.
 * Now click on Drive 0 unallocated space, and press next. Windows will install. 
 * When windows restarts, you may be put into windows, but you may be put into a terminal. If in the terminal,click the dropdown near the power icon at the top of the VM, and force it off.
