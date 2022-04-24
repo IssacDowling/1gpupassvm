@@ -8,7 +8,7 @@
 ## Update and install things
 Run these in a terminal.
 ```
-sudo dnf upgrade
+sudo dnf upgrade --refresh
 sudo dnf -y group install Virtualization
 sudo usermod -aG libvirt $USER
 ```
@@ -30,6 +30,11 @@ To the line containing "GRUB_CMDLINE_LINUX="
 
 CTRL+X, Y, Enter, to save and exit.
 
+Finally, run
+```
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+```
+
 #### Now reboot
 
 ## Checking IOMMU Groups
@@ -43,9 +48,11 @@ for g in `find /sys/kernel/iommu_groups/* -maxdepth 0 -type d | sort -V`; do
     done;
 done;
 ```
-### If your VGA and AUDIO deivces are in the same IOMMU group, with nothing else in it, good.
-### If your VGA and AUDIO devices aren't in the same IOMMU group, but they're each in their own group, with nothing else in either, good.
-### If your VGA and AUDIO devices are in the same group as other stuff, not good... but I can help! *Head to the end of this guide, it's for you.*
+**If your VGA and AUDIO deivces are in the same IOMMU group, with nothing else in it, good.**
+
+**If your VGA and AUDIO devices aren't in the same IOMMU group, but they're each in their own group, with nothing else in either, good**
+
+**If your VGA and AUDIO devices are in the same group as other stuff, not good... but I can help! Head to the end of this guide, it's for you**
 
 Note the characters (e.g. 2b:00.0) preceeding your "VGA compatible controller" (gpu), and its corresponding audio device.
 
@@ -213,7 +220,7 @@ modprobe nvidia_uvm
 **Now, CTRL+X, Y, ENTER**
 
 
-Finally, *ensure these scripts are executable!
+Finally, *ensure these scripts are executable!*
 ```
 sudo chmod +x /etc/libvirt/hooks/qemu.d/Windows/prepare/begin/start.sh
 sudo chmod +x /etc/libvirt/hooks/qemu.d/Windows/release/end/revert.sh
@@ -296,7 +303,19 @@ Then, replace the line ending in vcpu with:
 
 
 ### I want to pass through devices in the same IOMMU group (this is the section for people with wonky IOMMU groups from earlier)
-Well, switch your kernel to Linux-Zen. Or do some other method to get the ACS patch, but I like Linux-Zen. Then, go to your bootloader options, on grub that's 
+Well, switch your kernel to Xanmod. Or do some other method to get the ACS patch, but I don't know how.
+For Xanmod, just run
+```
+sudo dnf copr enable rmnscnce/kernel-xanmod -y
+sudo dnf in kernel-xanmod-edge
+```
+Then reboot, and type
+```
+hostnamectl
+```
+to verify that you're now using Xanmod.
+
+Then, go to your bootloader options, on grub that's 
 ```
 sudo nano /etc/default/grub
 ```
@@ -306,7 +325,7 @@ pcie_acs_override=downstream,multifunction
 ```
 And run:
 ```
-sudo grub-mkconfig -o /boot/grub/grub.cfg
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
 Not only should this fix any GPU-related IOMMU group issues, but it should also allow you to directly passthrough things like your motherboard's NIC, or a PCIE USB card that's not cooperating. Anything PCIE should be free to pass now. Also note: passing a USB controller is MUCH PREFERRED to individually forwarding USB devices. It allows hotplug, and is more compatible
 
