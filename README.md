@@ -1,6 +1,7 @@
 # 1gpupassvm (Fedora)
 
 ## Prerequisites
+* I own an AMD GPU, and so NVIDIA users will need to look elsewhere
 * Ensure above 4g decoding and resizeable bar are disabled in the bios. Right now, they cause VM issues.
 * Enable your respective virtualisation technology, for AMD, that's CSM in the bios.
 * Be on Fedora. This branch is for Fedora. [Click here for Arch.](https://github.com/IssacDowling/1gpupassvm/tree/arch)
