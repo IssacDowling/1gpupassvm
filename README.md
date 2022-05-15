@@ -68,7 +68,7 @@ We will be saving a bios anyway to pass through to the VM. Go to the [Techpoweru
 Then, you can just run
 ```
 sudo mkdir /etc/libvirt/gpubios
-sudo mv /home/$(whoami)/Downloads/gpubios.rom /etc/libvirt/gpubios
+sudo mv ~/Downloads/gpubios.rom /etc/libvirt/gpubios
 sudo chmod 755 /etc/libvirt/gpubios/gpubios.rom
 ```
 
