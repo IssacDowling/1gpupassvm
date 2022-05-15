@@ -20,7 +20,7 @@ Run this
 sudo nano /etc/default/grub
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
-Then add this
+Then - if you have an AMD CPU - add this: (replace amd with intel if using an Intel CPU)
 ```
 amd_iommu=on iommu=pt
 ```
