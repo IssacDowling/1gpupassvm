@@ -109,9 +109,9 @@ which will tell SElinux to allow whatever it's blocking.
 
 **Keep in mind, during first install, graphics and framerate will be pretty bad**
 
+* Go through installation as normal for the first bit.
 ### For Windows 11 only
 
-* Go through installation as normal for the first bit.
 * Due to some potential emulated TPM issues, we'll be telling Windows to ignore it. Once you're onto the windows version select screen, press Shift+F10, then type regedit.exe . Now, go to localmachine, system, right click setup, and make a new key called LabConfig.
 * Inside LabConfig, make a new 32bit value called BypassTPMCheck. Double click it, set the value to one, then continue setup as normal by selecting a windows 11 edition.
 
