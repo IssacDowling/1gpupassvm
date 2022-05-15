@@ -2,6 +2,7 @@
 
 ## Prerequisites
 * I own an AMD GPU, and so NVIDIA users will need to look elsewhere
+* I am not an expert, if this causes you issues or is in some way unideal, that's your responsibility to deal with
 * Ensure above 4g decoding and resizeable bar are disabled in the bios. Right now, they cause VM issues.
 * Enable your respective virtualisation technology, for AMD, that's CSM in the bios.
 * Be on Fedora. This branch is for Fedora. [Click here for Arch.](https://github.com/IssacDowling/1gpupassvm/tree/arch)
@@ -256,10 +257,8 @@ I am not an expert, these changes have not been verified by me or anybody else n
 ```
 sudo ausearch -c 'qemu-system-x86' --raw | audit2allow -M my-qemusystemx86
 sudo semodule -i my-qemusystemx86.pp
-sudo semanage boolean -m --on virt_use_nfs
-sudo semanage boolean -m --on virt_sandbox_use_all_caps
 ```
-It should now work
+It may now work. If it doesn't, run it again. Keep going until it does (2 tries for me got it working).
 ## If it works, here are some extras.
 
 ### I want to pass through devices in the same IOMMU group (this is the section for people with wonky IOMMU groups from earlier)
