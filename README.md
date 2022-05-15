@@ -279,15 +279,14 @@ to verify that you're now using Xanmod.
 Then, go to your bootloader options, on grub that's 
 ```
 sudo nano /etc/default/grub
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
-Then, on the line **GRUB_CMDLINE_LINUX_DEFAULT=**, *inside* the quotation marks, add:
+and on the line **GRUB_CMDLINE_LINUX_DEFAULT=**, *inside* the quotation marks, add:
 ```
 pcie_acs_override=downstream,multifunction
 ```
-And run:
-```
-sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-```
+CTRL+X, Y, ENTER.
+
 Not only should this fix any GPU-related IOMMU group issues, but it should also allow you to directly passthrough things like your motherboard's NIC, or a PCIE USB card that's not cooperating. Anything PCIE should be free to pass now. Also note: passing a USB controller is MUCH PREFERRED to individually forwarding USB devices. It allows hotplug, and is more compatible
 
 ### Performance
