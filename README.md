@@ -164,17 +164,6 @@ For the VTconsoles bit, go into another terminal and run ``ls /sys/class/vtconso
 
 The avoid race condition section basically just waits to ensure previous bits of code are excecuted before continuing. For most people, this does not need to be 10, but for some it does. Start high, and then once we're done, try lowering it and seeing what works. I use 0.5
 
-If on AMD, you're done, if on nvidia, **add these lines just before Unbind GPU**
-```
-modprobe -r nvidia_drm
-modprobe -r nvidia_modeset
-modprobe -r drm_kms_helper
-modprobe -r nvidia
-modprobe -r i2c_nvidia_gpu
-modprobe -r drm
-modprobe -r nvidia_uvm
-```
-
 Then, leave the rest of the script alone, and **CTRL+X, Y, ENTER**
 
 Run
@@ -200,16 +189,6 @@ systemctl start display-manager.service
 ```
 For VTconsoles, make the same changes, if any, you made in the start script.
 
-On NVIDIA, **add these before "rebind GPU"
-```
-modprobe nvidia_drm
-modprobe nvidia_modeset
-modprobe drm_kms_helper
-modprobe nvidia
-modprobe i2c_nvidia_gpu
-modprobe drm
-modprobe nvidia_uvm
-```
 **Now, CTRL+X, Y, ENTER**
 
 
