@@ -242,6 +242,7 @@ Open virtual machine manager, and click on your machine. Go to the info icon in 
       <synic state="on"/>
       <stimer state="on"/>
       <reset state="on"/>
+      <frequencies state='on'/>
 ````
 Then, just below the end hyperv line, paste:
 ````
