@@ -312,7 +312,7 @@ Then, replace the line ending in vcpu with:
     <iothreadpin iothread="2" cpuset="2-3"/>
   </cputune>
  ```
- To modify it, first change the number of vcpus to be the equal to 2x the cores we'll be passing through. Keep 2 cores free in this case, instead of just 1 which i'd do if not pinning. Then, use LSTOPO to match groups of cores. So, vcpu 0 I have = to cpuset 4, then vcpu 1 is cpuset 5. This is because one of my physical cores shows as 'owning' 4 and 5. That's the best explanation I can think of. For emulatorpin, change to one other free core, then set iothread to the final free core.
+ To modify it, first change the number of vcpus to be the equal to 2x the cores we'll be passing through. Use LSTOPO to match groups of cores.  For emulatorpin, change to one other free core, then set iothread to the final free cores.
 
 
 
