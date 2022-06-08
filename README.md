@@ -3,7 +3,7 @@
 ## Prerequisites
 * I own an AMD GPU, and so NVIDIA users will need to look elsewhere
 * I am not an expert, if this causes you issues or is in some way unideal, that's your responsibility to deal with
-* Ensure above 4g decoding and resizeable bar are disabled in the bios. Right now, they cause VM issues.
+* Ensure above 4g decoding is disabled in the bios. Right now, it causes VM issues.
 * Enable your respective virtualisation technology, for AMD, that's CSM in the bios.
 * Be on Fedora. This branch is for Fedora. [Click here for Arch.](https://github.com/IssacDowling/1gpupassvm/tree/arch)
 * Whenever I say "run", copy whatever's in that box into the terminal, and press enter.
@@ -95,7 +95,6 @@ Open Virtual Machine Manager, which should've been installed earlier, click QEMU
 * Click topology, and manually set topology.
 * Sockets to 1, set cores to -1 from whatever your CPU has, so a 6 core processor would have 5.
 * Go to a terminal and type htop. At the top you'll see a bunch of charts going horizontally at the top, which are numbered. On a Ryzen 3600, they go from 0-11, meaning there are 12 threads, or 2x the core count, meaning it has hyperthreading. If you have double as many bars as cores, set threads on your VM to 2. If it's the same as the physical cores you have, set threads to 1.
-* Untick "Copy host CPU configuration" IF it says (host-passthrough) after it, and select host-model from the dropdown.
 * Click add hardware in the bottom left of the virtual machine manager, and select storage. Set the Bus Type to VirtIO instead of SATA, and pick however much storage you want.
 * Add hardware to your VM again, select storage, and set the device type to CDROM Device. Click "select or create custom storage", then browse to the VirtIO iso. Press finish
 * Click on SATA CDROM 2, and click browse, then browse local, and head to your downloads, where you'll double click the VirtIO drivers iso. Press apply.
